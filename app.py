@@ -29,6 +29,7 @@ def get_clientes():
 # Buscar Cliente por ID
 @app.get('/clientes/<int:cliente_id>')
 def obter_cliente_por_id(cliente_id):
+    
     for cliente in clientes:
         if cliente['cliente_id'] == cliente_id:
             return jsonify(cliente), 200
@@ -70,4 +71,20 @@ def atualizar_cliente_por_id(cliente_id):
             return jsonify(cliente), 200
     return jsonify({'mensagem': 'Cliente não encontrado'}), 404
 
+# Deletar Cliente por ID
+@app.delete('/clientes/<int:cliente_id>')
+def deletar_cliente_por_id(cliente_id):
+    global clientes
+    cliente_remove = None
 
+    for cliente in clientes:
+        if cliente['cliente_id'] == cliente_id:
+            cliente_remove = cliente
+            break
+
+    if cliente_remove is None:
+        return jsonify({'mensagem': 'Cliente não encontrado'}), 404
+    
+    clientes.remove(cliente_remove)
+
+    return jsonify({'mensagem': 'Cliente deletado com sucesso'}), 200
