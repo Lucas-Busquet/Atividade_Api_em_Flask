@@ -1,0 +1,62 @@
+# =========================================================
+# 1. TESTE GET: LISTAR TODOS OS CLIENTES (CLIENTES INICIAIS)
+# Esperado: 200 OK e clientes 1 e 2
+# =========================================================
+GET http://127.0.0.1:5000/clientes
+Accept: application/json
+
+###
+
+# =========================================================
+# 2. TESTE POST: CRIAR NOVO CLIENTE (ID 3)
+# Esperado: 201 Created e cliente 3
+# =========================================================
+POST http://127.0.0.1:5000/clientes
+Content-Type: application/json
+
+{
+    "nome": "Carla Santos",
+    "email": "carla@example.com",
+    "telefone": "31998765432"
+}
+
+###
+
+# =========================================================
+# 3. TESTE GET: BUSCAR CLIENTE 3 POR ID
+# Objetivo: Confirmar a criação
+# Esperado: 200 OK e o JSON de Carla Santos
+# =========================================================
+GET http://127.0.0.1:5000/clientes/3
+Accept: application/json
+
+###
+
+# =========================================================
+# 4. TESTE PUT: ATUALIZAR NOME DO CLIENTE 3
+# Objetivo: Mudar apenas o campo 'nome'
+# Esperado: 200 OK e nome atualizado para 'Carla Santoro'
+# =========================================================
+PUT http://127.0.0.1:5000/clientes/3
+Content-Type: application/json
+
+{
+    "nome": "Carla Santoro"
+}
+
+###
+
+# =========================================================
+# 5. TESTE DELETE: EXCLUIR CLIENTE 3
+# Esperado: 200 OK e a mensagem de sucesso
+# =========================================================
+DELETE http://127.0.0.1:5000/clientes/3
+
+###
+
+# =========================================================
+# 6. TESTE GET: CONFIRMAR EXCLUSÃO
+# Esperado: 404 Not Found (O cliente não deve mais existir)
+# =========================================================
+GET http://127.0.0.1:5000/clientes/3
+Accept: application/json
