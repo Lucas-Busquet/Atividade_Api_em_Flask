@@ -25,11 +25,31 @@ if __name__ == '__main__':
 @app.get('/clientes')
 def get_clientes():
     return jsonify(clientes), 200  
-# GET /Clientes/1
+
+# Buscar Cliente por ID
 @app.get('/clientes/<int:cliente_id>')
 def obter_cliente_por_id(cliente_id):
     for cliente in clientes:
         if cliente['cliente_id'] == cliente_id:
             return jsonify(cliente), 200
-    return jsonify({'mensagem': 'Cliente não encontrado'}), 404 
+    return jsonify({'mensagem': 'Cliente não encontrado'}), 404  
 
+# Criar Nova Cliente
+@app.post('/clientes')
+def criar_novo_cliente():
+    global next_id
+    novo_cliente = request.get_json()
+
+    if not novo_cliente.get('nome') or not novo_cliente.get('email') or not novo_cliente.get('telefone'):
+        return jsonify({'mensagem': 'Nome, email e telefone são obrigatórios'}), 400
+    
+    novo_cliente={
+        'cliente_id': next_id,
+        'nome': novo_cliente['nome'],
+        'email': novo_cliente['email'],
+        'telefone': novo_cliente['telefone']
+    }
+
+    clientes.append(novo_cliente)
+    next_id += 1
+    return jsonify(novo_cliente), 201
