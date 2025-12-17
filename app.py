@@ -53,3 +53,21 @@ def criar_novo_cliente():
     clientes.append(novo_cliente)
     next_id += 1
     return jsonify(novo_cliente), 201
+
+# Atualizar Cliente por ID
+@app.put('/clientes/<int:cliente_id>')
+def atualizar_cliente_por_id(cliente_id):
+    dados_atualizados = request.get_json()
+    
+    if not dados_atualizados or (not dados_atualizados.get('nome') and not dados_atualizados.get('email') and not dados_atualizados.get('telefone')):
+        return jsonify({'mensagem': 'Pelo menos um dos campos nome, email ou telefone deve ser fornecido para atualização'}), 400
+    
+    for cliente in clientes:
+        if cliente['cliente_id'] == cliente_id:
+            cliente['nome'] = dados_atualizados.get('nome', cliente['nome'])
+            cliente['email'] = dados_atualizados.get('email', cliente['email'])
+            cliente['telefone'] = dados_atualizados.get('telefone', cliente['telefone'])
+            return jsonify(cliente), 200
+    return jsonify({'mensagem': 'Cliente não encontrado'}), 404
+
+
