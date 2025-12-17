@@ -1,30 +1,36 @@
 from flask import Flask, jsonify, request
-
 app = Flask(__name__)
 
-# BASE DE DADOS EM MEMÓRIA (Clientes)
 clientes = [
     {
         'cliente_id': 1,
-        'nome': 'João Silva',
-        'email': 'joao.silva@email.com',
+        'nome': 'Matheus Nogueira',
+        'email': 'matheus_nogueira@email.com',
         'telefone': '11987654321'
     },
     {
         'cliente_id': 2,
-        'nome': 'Maria Souza',
-        'email': 'maria.souza@email.com',
+        'nome': 'Lucas Busquet',
+        'email': 'lucas_busquet@email.com',
         'telefone': '21912345678'
     }
 ]
-next_id = 3 # Contador de ID para novos clientes
+next_id = 3 # Controlador de ID para o POST
 
-# --- ROTAS DA API ---
-
-# Aqui entrarão as rotas (Passos 3 a 7)
-
-# --- FIM DAS ROTAS ---
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True) 
+
+#GET / Clientes
+@app.get('/clientes')
+def get_clientes():
+    return jsonify(clientes), 200   
+
+# GET /Clientes/1
+@app.get('/clientes/<int:cliente_id>')
+def obter_cliente_por_id(cliente_id):
     
+    for cliente in clientes:
+        if cliente["cliente_id"] == cliente_id:
+            return jsonify(cliente), 200
+
+    return jsonify({"erro": "Cliente não encontrado"}), 404
