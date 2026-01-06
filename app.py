@@ -67,7 +67,7 @@ def atualizar_cliente_por_id(cliente_id):
     
     abort(404, message="Cliente não encontrado")
 
-# DELETE /cliente/<id> - Deletar Cliente por ID
+# DELETE /cliente/<id> - Deletar Cliente por id
 @app.delete('/cliente/<string:cliente_id>')
 def deletar_cliente_por_id(cliente_id):
     try:
