@@ -1,77 +1,37 @@
-from flask import Flask, jsonify, request
-from flask_smorest import abort
-import uuid
-
-from db import clientes
+from flask import Flask
+from flask_smorest import Api
+from db import db
+from resource.cliente import cliente_blp
+from resource.pedido import pedido_blp
 
 app = Flask(__name__)
 
+# Configurações da API e Swagger
+app.config["PROPAGATE_EXCEPTIONS"] = True
+app.config["API_TITLE"] = "API de Gestão de Clientes e Pedidos"
+app.config["API_VERSION"] = "v1"
+app.config["OPENAPI_VERSION"] = "3.0.3"
+app.config["OPENAPI_URL_PREFIX"] = "/"
+app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
+app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
+
+# Configuração do banco de dados
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///data.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# Inicializar extensões
+db.init_app(app)
+api = Api(app)
+
+# Registrar Blueprints
+api.register_blueprint(cliente_blp)
+api.register_blueprint(pedido_blp)
+
+# Criar tabelas antes da primeira requisição
+with app.app_context():
+    db.create_all()
+
 if __name__ == '__main__':
     app.run(debug=True)
-
-# GET /clientes - Lista todos os clientes
-@app.get('/clientes')
-def get_clientes():
-    return jsonify({"Clientes": list(clientes.values())}), 200  
-
-# GET /cliente/<id> - Buscar Cliente por ID
-@app.get('/cliente/<string:cliente_id>')
-def obter_cliente_por_id(cliente_id):
-    try:
-        return jsonify(clientes[cliente_id]), 200
-    except KeyError:
-        abort(404, message="Cliente não encontrado")
-
-# GET /cliente?nome=João - Buscar Cliente por nome (query parameter)
-@app.get('/cliente')
-def get_cliente_por_nome():
-    nome = request.args.get('nome')
-    
-    if not nome:
-        abort(400, message="Parâmetro 'nome' é obrigatório")
-    
-    for cliente in clientes.values():
-        if cliente['nome'] == nome:
-            return jsonify(cliente), 200
-    
-    abort(404, message="Cliente não encontrado")
-
-# POST /cliente - Criar Novo Cliente
-@app.post('/cliente')
-def criar_novo_cliente():
-    cliente_dado = request.get_json()
-
-    if not cliente_dado.get('nome') or not cliente_dado.get('email') or not cliente_dado.get('telefone'):
-        abort(400, message="Nome, email e telefone são obrigatórios")
-    
-    cliente_id = uuid.uuid4().hex
-    
-    cliente_novo = {**cliente_dado, "id": cliente_id}
-
-    clientes[cliente_id] = cliente_novo
-    
-    return jsonify(cliente_novo), 201
-
-# PUT /cliente/<id> - Atualizar Cliente por ID
-@app.put('/cliente/<string:cliente_id>')
-def atualizar_cliente_por_id(cliente_id):
-    dados_atualizados = request.get_json()
-    
-    if not dados_atualizados or (not dados_atualizados.get('nome') and not dados_atualizados.get('email') and not dados_atualizados.get('telefone')):
-        abort(400, message="Pelo menos um dos campos nome, email ou telefone deve ser fornecido para atualização")
-    
-    for cliente in clientes.values():
-        if cliente['id'] == cliente_id:
-            cliente.update(dados_atualizados)
-            return jsonify({"cliente atualizado": cliente}), 200
-    
-    abort(404, message="Cliente não encontrado")
-
-# DELETE /cliente/<id> - Deletar Cliente por id
-@app.delete('/cliente/<string:cliente_id>')
-def deletar_cliente_por_id(cliente_id):
-    try:
-        clientes.pop(cliente_id)
-        return jsonify({"message": "Cliente removido com sucesso"}), 200
-    except KeyError:
-        abort(404, message="Cliente não encontrado")
+if __name__ == '__main__':
+    app.run(debug=True)
